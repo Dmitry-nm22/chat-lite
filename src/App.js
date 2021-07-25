@@ -3,6 +3,7 @@ import JoinBlock from "./component/JoinBlock";
 import reducer from './reducer'
 import socket from "./Socket";
 import Chat from "./component/Chat";
+import axios from "axios";
 
 function App() {
     const [state, dispatch] = useReducer(reducer,{
@@ -13,12 +14,14 @@ function App() {
         messages: []
     })
 
-    const onLogin = (obj) => {
+    const onLogin = async (obj) => {
         dispatch({
             type: 'JOINED',
             payload: obj
         })
         socket.emit('ROOM:JOIN', obj)
+        const {data} = await axios.get(`/rooms/${obj.roomId}`)
+        setUsers(data.users)
     }
 
     const setUsers = (users) => {
@@ -29,7 +32,7 @@ function App() {
     };
 
     React.useEffect(() => {
-        socket.on('RROOM:JOINED', setUsers);
+       // socket.on('ROOM:JOINED', setUsers);
         socket.on('ROOM:SET_USERS', setUsers);
     }, []);
 
